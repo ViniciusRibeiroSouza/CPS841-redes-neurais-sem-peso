@@ -5,6 +5,7 @@ from library import get_path
 
 
 def plot_line(df, column_x, xlabel, ylabel, title, filename):
+    # Todo: Plot a line between executions
     plt.figure(figsize=(10, 7))
     plt.title(title)
     plt.ylim(0.5, 1.01)
@@ -17,10 +18,11 @@ def plot_line(df, column_x, xlabel, ylabel, title, filename):
     plt.errorbar(df[column_x], df['test_accuracy_mean'], df['test_accuracy_std'],
                  linestyle='None', marker='^', color='blue', label='Teste')
     plt.legend(loc='lower left')
-    plt.savefig(get_path(folder='results', subfolder='graph', file_name='{}.jpg'.format(filename)))
+    plt.savefig(get_path(folder='results', subfolder='graph') + '/' + '{}.jpg'.format(filename))
 
 
 def main():
+    # Todo: Change labels
     df = pd.read_csv(get_path(folder='results', file_name='accuracy.csv'))
     thresholds = df['threshold'].unique()
     for threshold in thresholds:
@@ -30,7 +32,7 @@ def main():
         xlabel = 'Numero de bits de enderecamento'
         ylabel = 'Acuracia'
         title = 'Resultados variando o numero de bits de enderecamento e threshold=' + str(threshold)
-        filename = 'accuracy_addressSize_threshold_' + str(threshold)
+        filename = 'threshold_' + str(threshold)
         plot_line(df_threshold, column_x, xlabel, ylabel, title, filename)
 
 
