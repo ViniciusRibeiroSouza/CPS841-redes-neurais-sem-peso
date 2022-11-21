@@ -25,35 +25,65 @@ def run(wisard_model, wisard_param: WizardParam, n_splits=None):
     # Load data
     X_train, X_test, Y_train, Y_test = load_dataset(wisard_param.threshold)
 
-    kf = KFold(n_splits=n_splits, shuffle=True)
-    fold = 1
-    for train_index, val_index in kf.split(X_train):
-        print("FOLD:", fold)
-        print("TRAIN: {} VALIDATION: {}".format(len(train_index), len(val_index)))
-        x_train, x_val = [X_train[index] for index in train_index], [X_train[index] for index in val_index]
-        y_train, y_val = [str(Y_train[index]) for index in train_index], [str(Y_train[index]) for index in val_index]
+    if n_splits:
+        kf = KFold(n_splits=n_splits, shuffle=True)
+        fold = 1
+        for train_index, val_index in kf.split(X_train):
+            print("FOLD:", fold)
+            print("TRAIN: {} VALIDATION: {}".format(len(train_index), len(val_index)))
+            x_train, x_val = [X_train[index] for index in train_index], [X_train[index] for index in val_index]
+            y_train, y_val = [str(Y_train[index]) for index in train_index], [str(Y_train[index]) for index in val_index]
 
-        # Train using the input data
-        print("Training")
-        wsd.train(x_train, y_train)
+            # Train using the input data
+            print("Training")
+            wsd.train(x_train, y_train)
 
+            # classify train data
+            print("Train data classification")
+            out_train = wsd.classify(x_train)
+
+            cm_training = confusion_matrix(y_train, out_train)
+            cm_training = cm_training / cm_training.astype(np.float).sum(axis=1)
+            confusion_matrix_train_scores += cm_training
+            train_accuracy_score.append(accuracy_score(y_train, out_train))
+
+            # classify validation data
+            print("Validation data classification")
+            out_val = wsd.classify(x_val)
+
+            cm_validation = confusion_matrix(y_val, out_val)
+            cm_validation = cm_validation / cm_validation.astype(np.float).sum(axis=1)
+            confusion_matrix_validation_scores += cm_validation
+            validation_accuracy_score.append(accuracy_score(y_val, out_val))
+
+            # classify test data
+            print("Test data classification")
+            out_test = wsd.classify(X_test)
+
+            cm_test = confusion_matrix(Y_test, out_test)
+            cm_test = cm_test / cm_test.astype(np.float).sum(axis=1)
+            confusion_matrix_test_scores += cm_test
+            test_accuracy_score.append(accuracy_score(Y_test, out_test))
+
+            fold += 1
+            print('\n')
+    else:
+        wsd.train(X_train, Y_train)
         # classify train data
         print("Train data classification")
-        out_train = wsd.classify(x_train)
-
-        cm_training = confusion_matrix(y_train, out_train)
+        out_train = wsd.classify(X_train)
+        cm_training = confusion_matrix(Y_train, out_train)
         cm_training = cm_training / cm_training.astype(np.float).sum(axis=1)
         confusion_matrix_train_scores += cm_training
-        train_accuracy_score.append(accuracy_score(y_train, out_train))
+        train_accuracy_score.append(accuracy_score(Y_train, out_train))
 
         # classify validation data
         print("Validation data classification")
-        out_val = wsd.classify(x_val)
-
-        cm_validation = confusion_matrix(y_val, out_val)
-        cm_validation = cm_validation / cm_validation.astype(np.float).sum(axis=1)
-        confusion_matrix_validation_scores += cm_validation
-        validation_accuracy_score.append(accuracy_score(y_val, out_val))
+        out_train = wsd.classify(X_train)
+        cm_training = confusion_matrix(Y_train, out_train)
+        cm_training = cm_training / cm_training.astype(np.float).sum(axis=1)
+        confusion_matrix_train_scores += cm_training
+        train_accuracy_score.append(accuracy_score(Y_train, out_train))
 
         # classify test data
         print("Test data classification")
@@ -63,8 +93,7 @@ def run(wisard_model, wisard_param: WizardParam, n_splits=None):
         cm_test = cm_test / cm_test.astype(np.float).sum(axis=1)
         confusion_matrix_test_scores += cm_test
         test_accuracy_score.append(accuracy_score(Y_test, out_test))
-
-        fold += 1
+        n_splits = 1
         print('\n')
 
     confusion_matrix_train_scores = np.divide(confusion_matrix_train_scores, n_splits)

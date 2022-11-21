@@ -9,9 +9,9 @@ from library import WizardParam
 def main():
     # Todo: Test with mnist and Fashion mnist
     # Subprocess
-    parallel = False
+    parallel = True
     # Number of splits used in KFold
-    n_splits = 3
+    n_splits = None
 
     # Parâmetros da WiSARD
     addressSize = None  # número de bits de enderaçamento das RAMs
@@ -37,8 +37,8 @@ def main():
     # Process
     procs = []
     # Todo: Work with more thresholds and sizes
-    thresholds = [90, 100, 110, 130, 150]
-    address_sizes = [3, 4, 5]
+    thresholds = [70, 125]
+    address_sizes = [25]
     if parallel:
         for threshold in thresholds:
             for address_size in address_sizes:
