@@ -1,3 +1,4 @@
+import os
 import sys
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -17,7 +18,11 @@ def plot_line(df, column_x, xlabel, ylabel, title, filename):
     plt.errorbar(df[column_x], df['test_accuracy_mean'], df['test_accuracy_std'],
                  linestyle='None', marker='^', color='blue', label='Test')
     plt.legend(loc='lower left')
-    plt.savefig(get_path(folder='results', subfolder='graph') + '/' + '{}.jpg'.format(filename))
+    folder_path = get_path(folder='results', subfolder='graph')
+    path = folder_path + '/' + '{}.jpg'.format(filename)
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)
+    plt.savefig(path)
 
 
 def main():

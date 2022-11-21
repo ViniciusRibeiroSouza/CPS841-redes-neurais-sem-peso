@@ -10,7 +10,7 @@ def main():
     # Subprocess
     parallel = True
     # Number of splits used in KFold
-    n_splits = None
+    n_splits = 2
 
     # Parâmetros da WiSARD
     addressSize = None  # número de bits de enderaçamento das RAMs
@@ -37,8 +37,8 @@ def main():
     procs = []
     # Todo: Work with more thresholds and sizes
     # thresholds X address_sizes
-    thresholds = [70, 125]  # 30
-    address_sizes = [25]  # 5
+    thresholds = [item for item in range(15, 180, 25)]
+    address_sizes = [item for item in range(3, 40, 5)]
     if parallel:
         for threshold in thresholds:
             for address_size in address_sizes:
@@ -55,6 +55,7 @@ def main():
 
 
 def run_wizard(address_size, n_splits, threshold, wizard_param):
+    print("ADD: {0} -- THR: {1}".format(address_size, threshold))
     wizard_param.addressSize = address_size
     wizard_param.threshold = threshold
     wizard_param_dict = wizard_param.get_param()
