@@ -1,4 +1,6 @@
 import sys
+from multiprocessing import Process
+
 import experiment
 import wisardpkg as wp
 from library import WizardParam
@@ -29,16 +31,27 @@ def main():
     wizard_param.returnClassesDegrees = returnClassesDegrees
     wizard_param.returnActivationDegree = returnActivationDegree
 
-    thresholds = [90, 100, 110, 120, 130]
-    address_sizes = [3]
+    # Process
+    procs = []
+    thresholds = [90, 150]
+    address_sizes = [3, 4]
     for threshold in thresholds:
         for address_size in address_sizes:
-            wizard_param.addressSize = address_size
-            wizard_param.threshold = threshold
-            wizard_param_dict = wizard_param.get_param()
-            temp_param_dict = get_configs_dict(wizard_param_dict)
-            wizard_model = wp.Wisard(wizard_param_dict['addressSize'], **temp_param_dict)
-            experiment.run(wizard_model, wizard_param, n_splits=n_splits)
+            proc = Process(target=run_wizard, args=(address_size, n_splits, threshold, wizard_param))
+            procs.append(proc)
+            proc.start()
+    # complete the processes
+    for proc in procs:
+        proc.join()
+
+
+def run_wizard(address_size, n_splits, threshold, wizard_param):
+    wizard_param.addressSize = address_size
+    wizard_param.threshold = threshold
+    wizard_param_dict = wizard_param.get_param()
+    temp_param_dict = get_configs_dict(wizard_param_dict)
+    wizard_model = wp.Wisard(wizard_param_dict['addressSize'], **temp_param_dict)
+    experiment.run(wizard_model, wizard_param, n_splits=n_splits)
 
 
 def get_configs_dict(wizard_param_dict):
